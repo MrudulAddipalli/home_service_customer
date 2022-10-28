@@ -44,26 +44,24 @@ class ProfileController extends GetxController {
       try {
         profileForm.currentState.save();
         user.value.deviceToken = null;
-        user.value.password = newPassword.value == confirmPassword.value ? newPassword.value : null;
+        user.value.password = newPassword.value == confirmPassword.value
+            ? newPassword.value
+            : null;
         user.value.avatar = avatar.value;
-        if (Get.find<SettingsService>().setting.value.enableOtp) {
-          await _userRepository.sendCodeToPhone();
-          Get.bottomSheet(
-            PhoneVerificationBottomSheetWidget(),
-            isScrollControlled: false,
-          );
-        } else {
-          user.value = await _userRepository.update(user.value);
-          Get.find<AuthService>().user.value = user.value;
-          Get.showSnackbar(Ui.SuccessSnackBar(message: "Profile saved successfully".tr));
-        }
+        // await _userRepository.sendCodeToPhone();
+        user.value = await _userRepository.update(user.value);
+        Get.find<AuthService>().user.value = user.value;
+        Get.showSnackbar(
+            Ui.SuccessSnackBar(message: "Profile saved successfully".tr));
       } catch (e) {
         Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
       } finally {}
     } else {
-      Get.showSnackbar(Ui.ErrorSnackBar(message: "There are errors in some fields please correct them!".tr));
+      Get.showSnackbar(Ui.ErrorSnackBar(
+          message: "There are errors in some fields please correct them!".tr));
     }
   }
+
 
   Future<void> verifyPhone() async {
     try {

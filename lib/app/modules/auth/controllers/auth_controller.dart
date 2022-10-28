@@ -69,22 +69,23 @@ class AuthController extends GetxController {
     }
   }
 
+
   void register() async {
     Get.focusScope.unfocus();
     if (registerFormKey.currentState.validate()) {
       registerFormKey.currentState.save();
       loading.value = true;
       try {
-        if (Get.find<SettingsService>().setting.value.enableOtp) {
-          await _userRepository.sendCodeToPhone();
-          loading.value = false;
-          await Get.toNamed(Routes.PHONE_VERIFICATION);
-        } else {
-          await Get.find<FireBaseMessagingService>().setDeviceToken();
-          currentUser.value = await _userRepository.register(currentUser.value);
-          await _userRepository.signUpWithEmailAndPassword(currentUser.value.email, currentUser.value.apiToken);
-          await Get.find<RootController>().changePage(0);
-        }
+        // await _userRepository.sendCodeToPhone();
+        // loading.value = false;
+        // await Get.toNamed(Routes.PHONE_VERIFICATION);
+        loading.value = false;
+        await Get.find<FireBaseMessagingService>().setDeviceToken();
+        currentUser.value = await _userRepository.register(currentUser.value);
+        await _userRepository.signUpWithEmailAndPassword(
+            currentUser.value.email, currentUser.value.apiToken);
+
+        await Get.find<RootController>().changePage(0);
       } catch (e) {
         Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
       } finally {
