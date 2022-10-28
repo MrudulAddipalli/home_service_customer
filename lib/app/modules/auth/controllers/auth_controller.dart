@@ -71,6 +71,7 @@ class AuthController extends GetxController {
 
 
   void register() async {
+    loading.value = true;
     Get.focusScope.unfocus();
     if (registerFormKey.currentState.validate()) {
       registerFormKey.currentState.save();
