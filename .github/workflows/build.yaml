@@ -1,0 +1,50 @@
+name: Continuous Integration
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  home_services_customer:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+      - name: Create Flutter Application Folder
+        run: |
+          shopt -s extglob
+          mkdir -p flutter_application
+          mv !(mock_data|documentation|flutter_application) flutter_application/
+          mv .gitignore flutter_application/
+      - uses: montudor/action-zip@v0.1.1
+        with:
+          args: zip -qq -r home_services_customer_${{ steps.get_version.outputs.VERSION }}.zip flutter_application
+      - name: Create Flutter Application Update Folder
+        run: |
+          shopt -s extglob
+          rm -f flutter_application/.git*
+          rm -f -r flutter_application/android/!(app|build.gradle)
+          rm -f -r flutter_application/android/app/!(src|build.gradle)
+          rm -f -r flutter_application/android/app/src/!(main)
+          rm -f -r flutter_application/android/app/src/main/!(AndroidManifest.xml)
+          rm -f -r flutter_application/assets/icon
+          rm -f -r flutter_application/assets/img
+          rm -f -r flutter_application/config
+          rm -f -r flutter_application/ios
+      - uses: montudor/action-zip@v0.1.1
+        with:
+          args: zip -qq -r home_services_customer_update_${{ steps.get_version.outputs.VERSION }}.zip flutter_application
+      - uses: montudor/action-zip@v0.1.1
+        with:
+          args: zip -qq -r documentation_${{ steps.get_version.outputs.VERSION }}.zip documentation
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: false
+          files: |
+            home_services_customer_${{ steps.get_version.outputs.VERSION }}.zip
+            home_services_customer_update_${{ steps.get_version.outputs.VERSION }}.zip
+            documentation_${{ steps.get_version.outputs.VERSION }}.zip
