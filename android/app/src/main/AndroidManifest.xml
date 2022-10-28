@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.smartersvision.home_services">
+          package="com.jhoice.customer_app2">
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
@@ -18,7 +18,7 @@
          additional functionality it is fine to subclass or reimplement
          FlutterApplication and put your custom class here. -->
     <application
-            android:label="Home Services"
+            android:label="Jhoice"
             android:name="${applicationName}"
             android:icon="@mipmap/ic_launcher"
             android:usesCleartextTraffic="true">
@@ -28,7 +28,7 @@
 
         <meta-data
                 android:name="com.google.firebase.messaging.default_notification_icon"
-                android:resource="@mipmap/ic_notification"/>
+                android:resource="@mipmap/ic_launcher"/>
 
         <activity
                 android:name=".MainActivity"
