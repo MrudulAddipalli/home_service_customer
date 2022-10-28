@@ -17,6 +17,11 @@ class UserRepository {
     return _laravelApiClient.login(user);
   }
 
+  Future<User> loginSocial(Map<String, dynamic> user) {
+    _laravelApiClient = Get.find<LaravelApiClient>();
+    return _laravelApiClient.loginSocial(user);
+  }
+
   Future<User> get(User user) {
     _laravelApiClient = Get.find<LaravelApiClient>();
     return _laravelApiClient.getUser(user);

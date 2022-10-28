@@ -121,6 +121,24 @@ class LaravelApiClient extends GetxService with ApiClient {
     }
   }
 
+
+  Future<User> loginSocial(Map<String, dynamic> user) async {
+    Uri _uri = getApiBaseUri("login-social");
+    printUri(StackTrace.current, _uri);
+    var response = await _httpClient.postUri(
+      _uri,
+      data: json.encode(user),
+      options: _optionsNetwork,
+    );
+    print(response);
+    if (response.data['success'] == true) {
+      response.data['data']['auth'] = true;
+      return User.fromJson(response.data['data']);
+    } else {
+      throw new Exception(response.data['message']);
+    }
+  }
+
   Future<User> register(User user) async {
     Uri _uri = getApiBaseUri("register");
     Get.log(_uri.toString());

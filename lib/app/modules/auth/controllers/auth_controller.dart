@@ -11,6 +11,8 @@ import '../../../services/auth_service.dart';
 import '../../../services/firebase_messaging_service.dart';
 import '../../../services/settings_service.dart';
 import '../../root/controllers/root_controller.dart';
+import 'package:firebase_auth/firebase_auth.dart' as fba;
+
 
 class AuthController extends GetxController {
   final Rx<User> currentUser = Get.find<AuthService>().user;
@@ -41,6 +43,29 @@ class AuthController extends GetxController {
       } finally {
         loading.value = false;
       }
+    }
+  }
+
+  void loginWithTrueCaller(Map<String, dynamic> result) async {
+    Get.focusScope.unfocus();
+    loading.value = true;
+
+    try {
+      await Get.find<FireBaseMessagingService>().setDeviceToken();
+
+      currentUser.value = await _userRepository.loginSocial(result);
+      fba.UserCredential userCredential =
+          await fba.FirebaseAuth.instance.signInAnonymously();
+
+      loading.value = false;
+
+      await Get.toNamed(Routes.ROOT, arguments: 0);
+    } catch (e) {
+      print(e);
+      Get.showSnackbar(Ui.ErrorSnackBar(message: e.toString()));
+    } finally {
+      print('done');
+      loading.value = false;
     }
   }
 

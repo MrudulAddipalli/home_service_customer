@@ -12,6 +12,7 @@ import '../../global_widgets/phone_field_widget.dart';
 import '../../global_widgets/text_field_widget.dart';
 import '../../root/controllers/root_controller.dart';
 import '../controllers/auth_controller.dart';
+import 'login_view.dart';
 
 class RegisterView extends GetView<AuthController> {
   final Setting _settings = Get.find<SettingsService>().setting.value;
@@ -150,42 +151,38 @@ class RegisterView extends GetView<AuthController> {
                           ),
                         );
                       }),
+                      SizedBox(
+                        width: Get.width,
+                        child: BlockButtonWidget(
+                          onPressed: () {
+                            controller.register();
+                          },
+                          color: Get.theme.colorScheme.secondary,
+                          text: Text(
+                            "Register".tr,
+                            style: Get.textTheme.headline6.merge(
+                                TextStyle(color: Get.theme.primaryColor)),
+                          ),
+                        ).paddingOnly(top: 15, bottom: 5, right: 20, left: 20),
+                      ),
+                      Text(
+                        "Or Continue With".tr,
+                        style: Get.textTheme.overline,
+                        textAlign: TextAlign.center,
+                      ).paddingSymmetric(vertical: 10),
+                      TrueCallerButtonWidget(controller),
+                      TextButton(
+                        onPressed: () {
+                          Get.toNamed(Routes.LOGIN);
+                        },
+                        child: Text("You already have an account?".tr),
+                      ).paddingOnly(bottom: 10),
                     ],
                   );
                 }
               })
             ],
           ),
-        ),
-        bottomNavigationBar: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Wrap(
-              crossAxisAlignment: WrapCrossAlignment.center,
-              direction: Axis.vertical,
-              children: [
-                SizedBox(
-                  width: Get.width,
-                  child: BlockButtonWidget(
-                    onPressed: () {
-                      controller.register();
-                    },
-                    color: Get.theme.colorScheme.secondary,
-                    text: Text(
-                      "Register".tr,
-                      style: Get.textTheme.headline6.merge(TextStyle(color: Get.theme.primaryColor)),
-                    ),
-                  ).paddingOnly(top: 15, bottom: 5, right: 20, left: 20),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Get.toNamed(Routes.LOGIN);
-                  },
-                  child: Text("You already have an account?".tr),
-                ).paddingOnly(bottom: 10),
-              ],
-            ),
-          ],
         ),
       ),
     );

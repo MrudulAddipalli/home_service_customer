@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -11,6 +13,7 @@ import '../../global_widgets/circular_loading_widget.dart';
 import '../../global_widgets/text_field_widget.dart';
 import '../../root/controllers/root_controller.dart';
 import '../controllers/auth_controller.dart';
+import 'package:truecaller_sdk/truecaller_sdk.dart';
 
 class LoginView extends GetView<AuthController> {
   final Setting _settings = Get.find<SettingsService>().setting.value;
@@ -145,6 +148,12 @@ class LoginView extends GetView<AuthController> {
                           style: Get.textTheme.headline6.merge(TextStyle(color: Get.theme.primaryColor)),
                         ),
                       ).paddingSymmetric(vertical: 10, horizontal: 20),
+                      Text(
+                        "Or Continue With".tr,
+                        style: Get.textTheme.overline,
+                        textAlign: TextAlign.center,
+                      ).paddingSymmetric(vertical: 10),
+                      TrueCallerButtonWidget(controller),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -165,5 +174,78 @@ class LoginView extends GetView<AuthController> {
         ),
       ),
     );
+  }
+}
+
+
+class TrueCallerButtonWidget extends StatefulWidget {
+  AuthController controller;
+  TrueCallerButtonWidget(this.controller);
+  @override
+  _TrueCallerButtonWidgetState createState() => _TrueCallerButtonWidgetState();
+}
+
+class _TrueCallerButtonWidgetState extends State<TrueCallerButtonWidget> {
+  StreamSubscription streamSubscription;
+
+  @override
+  void dispose() {
+    if (streamSubscription != null) {
+      streamSubscription.cancel();
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlockButtonWidget(
+      onPressed: () {
+        TruecallerSdk.initializeSDK(
+            sdkOptions: TruecallerSdkScope.SDK_OPTION_WITHOUT_OTP);
+
+        //OR you can also replace Step 2 and Step 3 directly with this
+        TruecallerSdk.isUsable.then((isUsable) {
+          isUsable
+              ? TruecallerSdk.getProfile
+              : Get.showSnackbar(Ui.ErrorSnackBar(
+                  message: "You require truecaller app to use this feature."));
+        });
+
+        streamSubscription = TruecallerSdk.streamCallbackData
+            .listen((truecallerSdkCallback) async {
+          switch (truecallerSdkCallback.result) {
+            case TruecallerSdkCallbackResult.success:
+              print(truecallerSdkCallback.profile.accessToken);
+              Map<String, dynamic> result = {
+                "name":
+                    "${truecallerSdkCallback.profile.firstName ?? ''} ${truecallerSdkCallback.profile.lastName ?? ''}",
+                "email": truecallerSdkCallback.profile.email,
+                "token": truecallerSdkCallback.profile.phoneNumber,
+                "phone_number": truecallerSdkCallback.profile.phoneNumber,
+                "avatar_original": truecallerSdkCallback.profile.avatarUrl,
+              };
+              print("SUCCESS");
+              widget.controller.loginWithTrueCaller(result);
+
+              break;
+            case TruecallerSdkCallbackResult.failure:
+              truecallerSdkCallback.error.printError();
+              Get.showSnackbar(Ui.ErrorSnackBar(
+                  message:
+                      "Authentication failed. Error Code: ${truecallerSdkCallback.error.code}"));
+              print("Error code : ${truecallerSdkCallback.error.code}");
+              break;
+            case TruecallerSdkCallbackResult.verification:
+              Get.showSnackbar(Ui.ErrorSnackBar(
+                  message: "Your Phone number needs to be verified."));
+              break;
+            default:
+              print("Invalid result");
+          }
+        });
+      },
+      color: Colors.white,
+      text: Image.asset('assets/img/truecaller-logo.png', width: 85),
+    ).paddingSymmetric(vertical: 5, horizontal: 20);
   }
 }
